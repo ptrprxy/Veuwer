@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -22,34 +23,39 @@ namespace Veuw.Controllers
         [HttpPost]
         public ActionResult Upload()
         {
-            var image = Request.Files[0];
-            var response = "";
-            if (image.ContentLength > 0)
+            try
             {
-                var hash = BitConverter.ToString(sha.ComputeHash(image.InputStream)).Replace("-", String.Empty);
-                var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash) ?? new Image() { Hash = hash };
-                var imgLink = new ImageLink() { Image = imgMatch };
-
-                db.ImageLinks.Add(imgLink);
-                db.SaveChanges();
-
-                if (imgMatch.Uri == null)
+                var image = Request.Files[0];
+                if (image.ContentLength > 0 && image.ContentLength < 2097152) //2 mb limit
                 {
-                    var path = Path.Combine(Server.MapPath("~/Uploads/Images"), Encode(imgMatch.Id) + ".png");
-                    image.SaveAs(path);
-                    imgMatch.Uri = path;
-                    imgMatch.MimeType = image.ContentType;
-                    db.SaveChanges();
+                    var hash = BitConverter.ToString(sha.ComputeHash(image.InputStream)).Replace("-", String.Empty);
+                    var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash) ?? new Image() { Hash = hash };
+                    var imgLink = new ImageLink() { Image = imgMatch };
+
+                    var img = System.Drawing.Image.FromStream(image.InputStream);
+                    image.InputStream.Seek(0, SeekOrigin.Begin);
+                    if (ImageFormat.Jpeg.Equals(img.RawFormat) || ImageFormat.Png.Equals(img.RawFormat) || ImageFormat.Gif.Equals(img.RawFormat))
+                    {
+                        db.ImageLinks.Add(imgLink);
+                        db.SaveChanges();
+
+                        if (imgMatch.Uri == null)
+                        {
+                            var path = Path.Combine(Server.MapPath("~/Uploads/Images"), Encode(imgMatch.Id) + ".png");
+                            img.Save(path);
+                            imgMatch.Uri = path;
+                            imgMatch.MimeType = image.ContentType;
+                            db.SaveChanges();
+                        }
+
+                        Response.Redirect("/" + Encode(imgLink.Id));
+                        return Json(new { status = "success" }, JsonRequestBehavior.AllowGet);
+                    }
                 }
-
-                response = "success";
             }
-            else
-            {
-                response = "failure";
-            }
+            catch { }
 
-            return Json(response, JsonRequestBehavior.AllowGet);
+            return Json(new { status = "failure" }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult Images(string id)
