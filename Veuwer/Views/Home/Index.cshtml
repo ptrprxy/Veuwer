@@ -4,16 +4,17 @@
 
 <div class="row toprow">
     <div class="col-md-12">
-        <h4>Nothing you upload is private. At least not yet.</h4>
+        <h4>Nothing you upload is private. At least not yet.<br />
+        Images must conform to US laws.</h4>
         <small>Supported file types:</small> <strong>jpg, png, gif</strong><br />
-        <small>Max file size:</small> 2 MB
+        <small>Max file size:</small> 2 MiB
     </div>
 </div>
 <div class="row">
     <div class="col-md-2">
         @using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            <label for="filepicker" class="btn btn-primary btn-block">Choose files...</label>
+            <label for="filepicker" class="btn btn-primary btn-block">Choose file...</label>
             <input type="file" name="image" id="filepicker" accept="image/*" /><br />
             <input type="submit" name="submit" value="Upload" class="btn btn-success btn-block" id="fileupload" disabled />
         }
