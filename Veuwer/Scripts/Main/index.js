@@ -17,6 +17,7 @@
     $('#fileupload').click(function () {
         $('#uploaderror').css({ display: 'none' });
         $('#uploadprog').css({ display: 'block' });
+        $('#fileupload,#filepicker-label').attr("disabled", true);
         var formData = new FormData($('form')[0]);
         $.ajax({
             url: '/Home/Upload',
@@ -56,5 +57,11 @@ function filesuccess(e) {
 
 function fileerror(e) {
     $('#uploadprog').css({ display: 'none' });
-    $('#uploaderror').css({ display: 'block' }).html(e.message);
+    $('#uploaderror').css({ display: 'block' });
+    if ('message' in e) {
+        $('#uploaderror').html(e.message);
+    } else {
+        $('#uploaderror').html('There was an error while uploading.');
+    }
+    $('#fileupload,#filepicker-label').removeAttr('disabled');
 }

@@ -13,7 +13,7 @@
     <div class="col-md-2">
         @using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            <label for="filepicker" class="btn btn-primary btn-block">Choose files...</label>
+            <label for="filepicker" id="filepicker-label" class="btn btn-primary btn-block">Choose files...</label>
             <input type="file" name="image" id="filepicker" accept="image/*" multiple /><br />
             <a href="#" class="btn btn-success btn-block" id="fileupload" disabled>Upload</a>
         }
