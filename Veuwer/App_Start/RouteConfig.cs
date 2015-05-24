@@ -27,6 +27,12 @@ namespace Veuw
             );
 
             routes.MapRoute(
+                name: "Image2",
+                url: "{id}",
+                defaults: new { controller = "Home", action = "Images" }
+            );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
