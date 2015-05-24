@@ -15,15 +15,15 @@ namespace Veuw
             routes.RouteExistingFiles = true;
 
             routes.MapRoute(
-                name: "ImageDirect",
-                url: "{id}.png",
-                defaults: new { controller = "Home", action = "ImageDirect" }
+                name: "Image",
+                url: "i/{id}",
+                defaults: new { controller = "Home", action = "Images" }
             );
 
             routes.MapRoute(
-                name: "Images",
-                url: "{id}",
-                defaults: new { controller = "Home", action = "Images" }
+                name: "ImageDirect",
+                url: "{id}.png",
+                defaults: new { controller = "Home", action = "ImageDirect" }
             );
 
             routes.MapRoute(
