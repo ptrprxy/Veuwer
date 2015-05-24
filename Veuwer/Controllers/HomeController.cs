@@ -51,21 +51,12 @@ namespace Veuw.Controllers
             }
 
             db.SaveChanges();
-            return Json(new { status = "success", message = "/" + Encode(newLinks[0].Id) + "?g=" + string.Join(",", newLinks.Skip(1).Select(x => Encode(x.Id))) }, JsonRequestBehavior.AllowGet);
-        }
-
-        JsonResult Fail(string reason)
-        {
-            return Json(new { status = "failure", message = reason }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = "success", message = "/i/" + string.Join(",", newLinks.Select(x => Encode(x.Id))) }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult Images(string id)
         {
-            var ids = new[] { id }.AsEnumerable();
-            var galleryIds = Request.QueryString.GetValues("g");
-            if (galleryIds != null)
-                ids = ids.Concat(galleryIds[0].Split(','));
-
+            var ids = id.Split(',');
             return View(ids);
         }
 
@@ -77,6 +68,11 @@ namespace Veuw.Controllers
                 return HttpNotFound();
 
             return File(imgLink.Image.ImgBlob, imgLink.Image.MimeType);
+        }
+
+        JsonResult Fail(string reason)
+        {
+            return Json(new { status = "failure", message = reason }, JsonRequestBehavior.AllowGet);
         }
 
         private const string CharList = "0123456789abcdefghijklmnopqrstuvwxyz";
