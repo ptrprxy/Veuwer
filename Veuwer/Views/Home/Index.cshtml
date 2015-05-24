@@ -4,20 +4,25 @@
 
 <div class="row toprow">
     <div class="col-md-12">
-        <h4>Nothing you upload is private. At least not yet.<br />
-        Images must conform to US laws.</h4>
+        <h4>Nothing you upload is private. At least not yet.</h4>
         <small>Supported file types:</small> <strong>jpg, png, gif</strong><br />
-        <small>Max file size:</small> 2 MiB
+        <small>Max file size:</small> <strong>2 MiB</strong>
     </div>
 </div>
 <div class="row">
     <div class="col-md-2">
         @using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            <label for="filepicker" class="btn btn-primary btn-block">Choose file...</label>
-            <input type="file" name="image" id="filepicker" accept="image/*" /><br />
-            <input type="submit" name="submit" value="Upload" class="btn btn-success btn-block" id="fileupload" disabled />
+            <label for="filepicker" class="btn btn-primary btn-block">Choose files...</label>
+            <input type="file" name="image" id="filepicker" accept="image/*" multiple /><br />
+            <a href="#" class="btn btn-success btn-block" id="fileupload" disabled>Upload</a>
         }
+        <div class="progress" id="uploadprog">
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                <span class="sr-only">0% Complete</span>
+            </div>
+        </div>
+        <div id="uploaderror"></div>
     </div>
     <div class="col-md-10" id="filelist">
 

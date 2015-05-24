@@ -1,18 +1,32 @@
-﻿@{
+﻿@model IEnumerable<string>
+@{
     ViewBag.Title = "Images";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row toprow">
-    <div class="col-md-12">
-        <a href="/@(ViewBag.ImageUri).png">
-            <img src="/@(ViewBag.ImageUri).png" class="userimage" />
-        </a>
+@if (Model.Count() > 1)
+{
+    <div class="row toprow">
+        <div class="col-md-12">
+            <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(HttpContext.Current.Request.Url.AbsoluteUri)">Submit gallery to Voat</a>
+        </div>
     </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(ViewBag.ImageUri).png">Submit to Voat</a>
+}
+@foreach (var img in Model)
+{
+    <div class="row toprow">
+        <div class="col-md-10">
+            <a href="/@(img).png">
+                <img src="/@(img).png" class="userimage" />
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(img).png">Submit to Voat</a>
+        </div>
     </div>
-</div>
+    
+    if (img != Model.Last())
+    {
+        <hr />
+    }
+}

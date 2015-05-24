@@ -35,3 +35,18 @@ input[type="file"] {
     margin-top: 30px;
     margin-bottom: 30px;
 }
+
+.fileentry {
+    background: #333;
+    border: 1px solid #383838;
+    padding: 8px 0;
+    border-collapse: collapse;
+}
+
+#uploadprog {
+    display: none;
+}
+
+#uploaderror {
+    display: none;
+}
