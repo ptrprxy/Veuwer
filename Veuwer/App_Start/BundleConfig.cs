@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace Veuw
+namespace Veuwer
 {
     public class BundleConfig
     {

@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace Veuw
+namespace Veuwer
 {
     public class FilterConfig
     {

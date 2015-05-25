@@ -6,9 +6,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
-using Veuw.Models;
+using Veuwer.Models;
 
-namespace Veuw.Controllers
+namespace Veuwer.Controllers
 {
     public class HomeController : Controller
     {

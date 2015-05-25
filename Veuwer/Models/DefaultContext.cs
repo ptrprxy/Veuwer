@@ -4,7 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 
-namespace Veuw.Models
+namespace Veuwer.Models
 {
     public class DefaultContext : DbContext
     {
