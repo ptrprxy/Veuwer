@@ -29,6 +29,9 @@ namespace Veuwer
 
             bundles.Add(new ScriptBundle("~/bundles/main/index").Include(
                         "~/Scripts/Main/index.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/main/images").Include(
+                        "~/Scripts/Main/images.js"));
         }
     }
 }

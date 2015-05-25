@@ -21,7 +21,11 @@
             </a>
         </div>
         <div class="col-md-2">
-            <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(img).png">Submit to Voat</a>
+            <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(img).png">Submit to Voat</a><br /><br />
+            <label for="imagelink">Link</label>
+            <input type="text" class="form-control input-sm imagelink" value="http://www.veuwer.com/i/@(img)" readonly />
+            <label for="imagelink">Direct link</label>
+            <input type="text" class="form-control input-sm imagelink" value="http://www.veuwer.com/@(img).png" readonly />
         </div>
     </div>
     
@@ -30,3 +34,5 @@
         <hr />
     }
 }
+
+@Scripts.Render("~/bundles/main/images")
