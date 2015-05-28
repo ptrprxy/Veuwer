@@ -9,24 +9,18 @@
         <small>Max file size:</small> <strong>2 MiB</strong>
     </div>
 </div>
+
 <div class="row">
     <div class="col-md-2">
-        @using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
-        {
-            <label for="filepicker" id="filepicker-label" class="btn btn-primary btn-block">Choose files...</label>
-            <input type="file" name="image" id="filepicker" accept="image/*" multiple /><br />
-            <a href="#" class="btn btn-success btn-block" id="fileupload" disabled>Upload</a>
-        }
-        <div class="progress" id="uploadprog">
-            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
-                <span class="sr-only">0% Complete</span>
-            </div>
-        </div>
+        <input id="filestreams" type="file" accept="image/*" multiple />
+        <label id="filestreams-label" class="btn btn-primary btn-block btn-sm" for="filestreams">Choose files</label>
+        <input id="urlinput" type="text" class="form-control btn-block input-sm" placeholder="Paste urls" />
+        <a href="#" class="btn btn-success btn-block btn-sm" id="fileupload" disabled>Upload</a>
+
         <div id="uploaderror"></div>
     </div>
-    <div class="col-md-10" id="filelist">
 
-    </div>
+    <div class="col-md-10" id="filelist"></div>
 </div>
 
 @Scripts.Render("~/bundles/main/index")

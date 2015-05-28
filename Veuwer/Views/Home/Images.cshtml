@@ -15,12 +15,12 @@
 @foreach (var img in Model)
 {
     <div class="row toprow">
-        <div class="col-md-10">
+        <div class="col-md-9">
             <a href="/@(img).png">
                 <img src="/@(img).png" class="userimage" />
             </a>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(img).png">Submit to Voat</a><br /><br />
             <label for="imagelink">Link</label>
             <input type="text" class="form-control input-sm imagelink" value="http://www.veuwer.com/i/@(img)" readonly />
