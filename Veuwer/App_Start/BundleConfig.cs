@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace Veuw
+namespace Veuwer
 {
     public class BundleConfig
     {
@@ -29,6 +29,9 @@ namespace Veuw
 
             bundles.Add(new ScriptBundle("~/bundles/main/index").Include(
                         "~/Scripts/Main/index.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/main/images").Include(
+                        "~/Scripts/Main/images.js"));
         }
     }
 }
