@@ -37,9 +37,9 @@ namespace Veuwer.Controllers
             {
                 var url = ((string[])image)[0];
 
-                string fileName = Path.GetFileName(url);
-                if (string.IsNullOrWhiteSpace(fileName))
-                    fileName = url;
+                filename = Path.GetFileName(url);
+                if (string.IsNullOrWhiteSpace(filename))
+                    filename = url;
 
                 using (WebClient client = new WebClient())
                     stream = client.OpenRead(url);
@@ -52,7 +52,7 @@ namespace Veuwer.Controllers
             db.ImageLinks.Add(newLink);
 
             db.SaveChanges();
-            return Json(new { status = "success", newid = Encode(newLink.Id) }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = "success", message = Encode(newLink.Id) }, JsonRequestBehavior.AllowGet);
         }
 
         byte[] pngsig = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };  // .PNG....

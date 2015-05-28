@@ -1,5 +1,6 @@
 ﻿var toupload;
 var forward = '';
+var uploadfail = false;
 
 $(function () {
     toupload = [];
@@ -17,6 +18,7 @@ $(function () {
         $('.progress').css({ display: 'block' });
         $('#filestreams,#filestreams-label,#urlinput').attr("disabled", true);
         $('#uploaderror').html('');
+        uploadfail = false;
 
         var filedivs = $('.fileentry');
         var ajaxlist = [];
@@ -42,14 +44,16 @@ $(function () {
         }
 
         $.when.apply($, ajaxlist).then(function () {
-            window.location.href = forward.substring(1);
+            if (!uploadfail) {
+                window.location.href = forward.substring(1);
+            }
         });
     });
 
     $('#urlinput').on('paste', function () {
         setTimeout(function () {
-            var urlinput = $('#urlinput')[0].value;
-            toupload.push(urlinput);
+            var urlinput = $('#urlinput')[0];
+            toupload.push(urlinput.value);
             urlinput.value = '';
             refreshFileList();
         }, 100);
@@ -75,8 +79,18 @@ function createProg(i) {
 
 function createSuccess(i) {
     return function (e) {
-        $($('.progress .progress-bar')[i]).addClass('progress-bar-success');
-        forward += ',' + e.newid;
+        if (e.status == 'success') {
+            $($('.progress .progress-bar')[i]).addClass('progress-bar-success');
+            forward += ',' + e.message;
+        } else {
+            $($('.progress .progress-bar')[i]).addClass('progress-bar-danger');
+            $('#uploaderror').css({ display: 'block' });
+            $('#filestreams,#filestreams-label,#urlinput').removeAttr('disabled');
+            uploadfail = true;
+
+            var errordiv = $('#uploaderror');
+            errordiv.html(errordiv.html() + '<br>' + e.message);
+        }
     };
 }
 
@@ -84,13 +98,11 @@ function createError(i) {
     return function (e) {
         $($('.progress .progress-bar')[i]).addClass('progress-bar-danger');
         $('#uploaderror').css({ display: 'block' });
-        var errordiv = $('#uploaderror');
-        if ('message' in e) {
-            errordiv.html(errordiv.html() + '<br>' + e.message);
-        } else {
-            errordiv.html(errordiv.html() + '<br>' + 'There was an error while uploading.');
-        }
         $('#filestreams,#filestreams-label,#urlinput').removeAttr('disabled');
+        uploadfail = true;
+
+        var errordiv = $('#uploaderror');
+        errordiv.html(errordiv.html() + '<br>' + 'There was an error while uploading.');
     }
 }
 
