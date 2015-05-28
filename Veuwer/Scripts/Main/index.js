@@ -15,7 +15,7 @@ $(function () {
     });
 
     $('#fileupload').click(function () {
-        $('uploaderror').css({ display: 'none' });
+        $('#uploaderror,.removeitem').css({ display: 'none' });
         $('.progress').css({ display: 'block' });
         $('#filestreams,#filestreams-label,#urlinput').attr("disabled", true);
         $('#uploaderror').html('');
@@ -86,6 +86,7 @@ function createSuccess(i) {
         } else {
             $($('.progress .progress-bar')[i]).addClass('progress-bar-danger');
             $('#uploaderror').css({ display: 'block' });
+            $('.removeitem').css({ display: 'inline' });
             $('#filestreams,#filestreams-label,#urlinput').removeAttr('disabled');
             uploadfail = true;
 
@@ -99,6 +100,7 @@ function createError(i) {
     return function (e) {
         $($('.progress .progress-bar')[i]).addClass('progress-bar-danger');
         $('#uploaderror').css({ display: 'block' });
+        $('.removeitem').css({ display: 'inline' });
         $('#filestreams,#filestreams-label,#urlinput').removeAttr('disabled');
         uploadfail = true;
 
