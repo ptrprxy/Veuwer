@@ -11,6 +11,7 @@ $(function () {
         }
         console.log(toupload);
         refreshFileList();
+        $('#filestreams').replaceWith($('#filestreams').val('').clone(true));
     });
 
     $('#fileupload').click(function () {
@@ -107,7 +108,12 @@ function createError(i) {
 }
 
 function refreshFileList() {
-    var startEntry = '<div class="row fileentry"><div class="col-md-10">';
+    if (toupload.length === 0) {
+        $('#filelist').html('');
+        return;
+    }
+
+    var startEntry = '<div class="row fileentry"><div class="col-md-1"><a href="#" class="removeitem">X</a></div><div class="col-md-9">';
     var endEntry = '<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"><span class="sr-only">0% Complete</span></div></div></div></div>';
     var filestreams = $('#filestreams')[0];
 
@@ -122,9 +128,21 @@ function refreshFileList() {
         }
     }).join(endEntry + startEntry) + endEntry);
 
+    var remlinks = $('.removeitem');
+    for (var i = 0; i < remlinks.length; i++) {
+        $(remlinks[i]).click(createRemove(i));
+    }
+
     if (toupload.length > 0) {
         $('#fileupload').removeAttr('disabled');
     } else {
         $('#fileupload').attr("disabled", true);
+    }
+}
+
+function createRemove(i) {
+    return function () {
+        toupload.splice(i, 1);
+        refreshFileList();
     }
 }
