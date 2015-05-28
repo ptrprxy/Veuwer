@@ -1,14 +1,13 @@
 ﻿@model IEnumerable<string>
 @{
     ViewBag.Title = "Images";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @if (Model.Count() > 1)
 {
     <div class="row toprow">
         <div class="col-md-12">
-            <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(HttpContext.Current.Request.Url.AbsoluteUri)">Submit gallery to Voat</a>
+            <a href="https://voat.co/submit?linkpost=true&url=http://veuwer.com/@(HttpContext.Current.Request.Url.AbsoluteUri)">Submit gallery to Voat</a>
         </div>
     </div>
 }
@@ -21,11 +20,11 @@
             </a>
         </div>
         <div class="col-md-3">
-            <a href="https://voat.co/submit?linkpost=true&url=http://www.veuwer.com/@(img).png">Submit to Voat</a><br /><br />
+            <a href="https://voat.co/submit?linkpost=true&url=http://veuwer.com/@(img).png">Submit to Voat</a><br /><br />
             <label for="imagelink">Link</label>
-            <input type="text" class="form-control input-sm imagelink" value="http://www.veuwer.com/i/@(img)" readonly />
+            <input type="text" class="form-control input-sm imagelink" value="http://veuwer.com/i/@(img)" readonly />
             <label for="imagelink">Direct link</label>
-            <input type="text" class="form-control input-sm imagelink" value="http://www.veuwer.com/@(img).png" readonly />
+            <input type="text" class="form-control input-sm imagelink" value="http://veuwer.com/@(img).png" readonly />
         </div>
     </div>
     
