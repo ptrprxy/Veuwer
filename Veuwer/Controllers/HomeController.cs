@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Amazon;
+using Amazon.S3;
+using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,13 +9,25 @@ using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
 using Veuwer.Models;
+using MoreLinq;
 
 namespace Veuwer.Controllers
 {
     public class HomeController : Controller
     {
+        IAmazonS3 s3;
         DefaultContext db = new DefaultContext();
         SHA256Managed sha = new SHA256Managed();
+        Dictionary<long, byte[]> fileCache = new Dictionary<long, byte[]>();
+        Dictionary<long, DateTime> lastAccess = new Dictionary<long, DateTime>();
+
+        int cacheLimit = 100;
+
+        public HomeController()
+        {
+            string[] keys = System.IO.File.ReadAllText("/HostingSpaces/IcyDef/test.veuwer.com/data/awskeys.txt").Split(',');
+            s3 = AWSClientFactory.CreateAmazonS3Client(keys[0], keys[1], RegionEndpoint.USWest2);
+        }
 
         public ActionResult Index()
         {
@@ -112,7 +125,46 @@ namespace Veuwer.Controllers
             if (imgLink == null)
                 return HttpNotFound();
 
-            return File(imgLink.Image.ImgBlob, imgLink.Image.MimeType);
+            long imgId = imgLink.Image.Id;
+            byte[] imgdata;
+            if (!fileCache.TryGetValue(imgId, out imgdata))
+            {
+                using (var res = s3.GetObject("veuwer", "images/" + imgId + ".png"))
+                using (Stream stream = res.ResponseStream)
+                {
+                    fileCache[imgId] = imgdata = StreamToByteArray(stream);
+                }
+
+                if (fileCache.Count > cacheLimit)
+                {
+                    var oldkey = lastAccess.MinBy(x => x.Value).Key;
+                    fileCache.Remove(oldkey);
+                    lastAccess.Remove(oldkey);
+                }
+            }
+
+            lastAccess[imgId] = DateTime.Now;
+            return File(imgdata, imgLink.Image.MimeType);
+        }
+
+        byte[] StreamToByteArray(Stream stream, int sizeLimit = int.MaxValue)
+        {
+            byte[] data;
+            using (var ms = new MemoryStream())
+            {
+                byte[] buffer = new byte[2048];
+                int bytesRead, totalRead = 0;
+                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, bytesRead);
+                    totalRead += bytesRead;
+                    if (totalRead > sizeLimit)
+                        return null;
+                }
+                data = ms.ToArray();
+            }
+
+            return data;
         }
 
         JsonResult Fail(string reason)
