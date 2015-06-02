@@ -1,5 +1,6 @@
 ﻿using Amazon;
 using Amazon.S3;
+using Amazon.S3.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,8 +19,8 @@ namespace Veuwer.Controllers
         IAmazonS3 s3;
         DefaultContext db = new DefaultContext();
         SHA256Managed sha = new SHA256Managed();
-        Dictionary<long, byte[]> fileCache = new Dictionary<long, byte[]>();
-        Dictionary<long, DateTime> lastAccess = new Dictionary<long, DateTime>();
+        static Dictionary<long, byte[]> fileCache = new Dictionary<long, byte[]>();
+        static Dictionary<long, DateTime> lastAccess = new Dictionary<long, DateTime>();
 
         int cacheLimit = 100;
 
@@ -64,7 +65,27 @@ namespace Veuwer.Controllers
 
             db.ImageLinks.Add(newLink);
 
+            bool sendToS3 = newLink.Image.Id == 0;
             db.SaveChanges();
+            if (sendToS3)
+            {
+                try
+                {
+                    string key = Request.Url.Host + "/images/" + Encode(newLink.Image.Id) + ".png";
+                    s3.PutObject(new PutObjectRequest()
+                    {
+                        Key = key,
+                        InputStream = stream,
+                        BucketName = "veuwer",
+                        ContentType = newLink.Image.MimeType
+                    });
+                }
+                catch (Exception)
+                {
+                    Fail("Transferring " + filename + " to storage failed");
+                }
+            }
+
             return Json(new { status = "success", message = Encode(newLink.Id) }, JsonRequestBehavior.AllowGet);
         }
 
@@ -90,26 +111,27 @@ namespace Veuwer.Controllers
             }
 
             var hash = BitConverter.ToString(sha.ComputeHash(imgdata)).Replace("-", String.Empty);
-            var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash) ?? new Image() { Hash = hash };
-            var imgLink = new ImageLink() { Image = imgMatch };
-
-            string mimeType = "";
-            if (imgdata.Take(pngsig.Length).SequenceEqual(pngsig))
-                mimeType = "image/png";
-            else if (imgdata.Take(jpgsig.Length).SequenceEqual(jpgsig))
-                mimeType = "image/jpeg";
-            else if (imgdata.Take(gifsig1.Length).SequenceEqual(gifsig1) || imgdata.Take(gifsig2.Length).SequenceEqual(gifsig2))
-                mimeType = "image/gif";
-            else
-                return null;
-
-            if (imgMatch.ImgBlob == null)
+            var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash);
+            if (imgMatch == null)
             {
-                imgMatch.ImgBlob = imgdata;
-                imgMatch.MimeType = mimeType;
+                string mimeType = "";
+                if (imgdata.Take(pngsig.Length).SequenceEqual(pngsig))
+                    mimeType = "image/png";
+                else if (imgdata.Take(jpgsig.Length).SequenceEqual(jpgsig))
+                    mimeType = "image/jpeg";
+                else if (imgdata.Take(gifsig1.Length).SequenceEqual(gifsig1) || imgdata.Take(gifsig2.Length).SequenceEqual(gifsig2))
+                    mimeType = "image/gif";
+                else
+                    return null;
+
+                imgMatch = new Image()
+                {
+                    Hash = hash,
+                    MimeType = mimeType
+                };
             }
 
-            return imgLink;
+            return new ImageLink() { Image = imgMatch };
         }
 
         public ActionResult Images(string id)
@@ -129,10 +151,15 @@ namespace Veuwer.Controllers
             byte[] imgdata;
             if (!fileCache.TryGetValue(imgId, out imgdata))
             {
-                using (var res = s3.GetObject("veuwer", "images/" + imgId + ".png"))
-                using (Stream stream = res.ResponseStream)
+                try
                 {
-                    fileCache[imgId] = imgdata = StreamToByteArray(stream);
+                    using (var res = s3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgId) + ".png"))
+                    using (Stream stream = res.ResponseStream)
+                        fileCache[imgId] = imgdata = StreamToByteArray(stream);
+                }
+                catch (Exception)
+                {
+                    fileCache[imgId] = imgdata = imgLink.Image.ImgBlob;
                 }
 
                 if (fileCache.Count > cacheLimit)

@@ -166,6 +166,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201506020144573_Initial.cs" />
+    <Compile Include="Migrations\201506020144573_Initial.Designer.cs">
+      <DependentUpon>201506020144573_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DefaultContext.cs" />
     <Compile Include="Models\Image.cs" />
     <Compile Include="Models\ImageLink.cs" />
@@ -177,6 +182,7 @@
     <Content Include="App_Data\aspnet-Veuw-20150523104302_log.ldf">
       <DependentUpon>aspnet-Veuw-20150523104302.mdf</DependentUpon>
     </Content>
+    <Content Include="App_Data\awskeys.txt" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="favicon.ico" />
@@ -217,15 +223,18 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
-    <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\Images.cshtml" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201506020144573_Initial.resx">
+      <DependentUpon>201506020144573_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
