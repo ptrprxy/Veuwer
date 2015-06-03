@@ -11,12 +11,13 @@ using System.Web;
 using System.Web.Mvc;
 using Veuwer.Models;
 using MoreLinq;
-using Veuwer.Utility;
 
 namespace Veuwer.Controllers
 {
     public class HomeController : Controller
     {
+        const int sizeLimit = 2097152;
+
         IAmazonS3 s3;
         DefaultContext db = new DefaultContext();
         SHA256Managed sha = new SHA256Managed();
@@ -45,11 +46,12 @@ namespace Veuwer.Controllers
             if (image is HttpPostedFileBase[])
             {
                 var file = ((HttpPostedFileBase[])image)[0];
-                if (file.ContentLength > 2097152)
-                    return Fail(filename + " is too large");
 
                 filename = file.FileName;
                 stream = file.InputStream;
+
+                if (file.ContentLength > sizeLimit)
+                    return Fail(filename + " is too large");
             }
             else if (image is string[])
             {
@@ -64,10 +66,10 @@ namespace Veuwer.Controllers
                     stream = client.OpenRead(url);
 
                     int filesize = int.Parse(client.ResponseHeaders["Content-Length"]);
-                    if (filesize > 2097152)
+                    if (filesize > sizeLimit)
                         return Fail(filename + " is too large");
                     else
-                        stream = new LengthStream(stream, filesize);
+                        stream = new MemoryStream(StreamToByteArray(stream, sizeLimit));
                 }
             }
 
@@ -170,7 +172,7 @@ namespace Veuwer.Controllers
             return new ImageLink() { Image = imgMatch };
         }
 
-        byte[] StreamToByteArray(Stream stream, int sizeLimit = int.MaxValue)
+        byte[] StreamToByteArray(Stream stream, int maxsize = int.MaxValue)
         {
             byte[] data;
             using (var ms = new MemoryStream())
@@ -181,7 +183,7 @@ namespace Veuwer.Controllers
                 {
                     ms.Write(buffer, 0, bytesRead);
                     totalRead += bytesRead;
-                    if (totalRead > sizeLimit)
+                    if (totalRead > maxsize)
                         return null;
                 }
                 data = ms.ToArray();
