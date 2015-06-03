@@ -26,7 +26,7 @@ namespace Veuwer.Controllers
 
         public HomeController()
         {
-            string[] keys = System.IO.File.ReadAllText("/HostingSpaces/IcyDef/test.veuwer.com/data/awskeys.txt").Split(',');
+            string[] keys = System.IO.File.ReadAllText("/HostingSpaces/IcyDef/veuwer.com/data/awskeys.txt").Split(',');
             s3 = AWSClientFactory.CreateAmazonS3Client(keys[0], keys[1], RegionEndpoint.USWest2);
         }
 
