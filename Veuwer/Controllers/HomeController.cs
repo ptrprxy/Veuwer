@@ -151,16 +151,9 @@ namespace Veuwer.Controllers
             byte[] imgdata;
             if (!fileCache.TryGetValue(imgId, out imgdata))
             {
-                try
-                {
-                    using (var res = s3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgId) + ".png"))
-                    using (Stream stream = res.ResponseStream)
-                        fileCache[imgId] = imgdata = StreamToByteArray(stream);
-                }
-                catch (Exception)
-                {
-                    fileCache[imgId] = imgdata = imgLink.Image.ImgBlob;
-                }
+                using (var res = s3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgId) + ".png"))
+                using (Stream stream = res.ResponseStream)
+                    fileCache[imgId] = imgdata = StreamToByteArray(stream);
 
                 if (fileCache.Count > cacheLimit)
                 {

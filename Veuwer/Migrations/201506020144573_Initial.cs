@@ -7,28 +7,28 @@ namespace Veuwer.Migrations
     {
         public override void Up()
         {
-            //CreateTable(
-            //    "dbo.ImageLinks",
-            //    c => new
-            //        {
-            //            Id = c.Long(nullable: false, identity: true),
-            //            VoatLink = c.String(),
-            //            Image_Id = c.Long(),
-            //        })
-            //    .PrimaryKey(t => t.Id)
-            //    .ForeignKey("dbo.Images", t => t.Image_Id)
-            //    .Index(t => t.Image_Id);
-            
-            //CreateTable(
-            //    "dbo.Images",
-            //    c => new
-            //        {
-            //            Id = c.Long(nullable: false, identity: true),
-            //            ImgBlob = c.Binary(),
-            //            Hash = c.String(),
-            //            MimeType = c.String(),
-            //        })
-            //    .PrimaryKey(t => t.Id);
+            CreateTable(
+                "dbo.ImageLinks",
+                c => new
+                    {
+                        Id = c.Long(nullable: false, identity: true),
+                        VoatLink = c.String(),
+                        Image_Id = c.Long(),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Images", t => t.Image_Id)
+                .Index(t => t.Image_Id);
+
+            CreateTable(
+                "dbo.Images",
+                c => new
+                    {
+                        Id = c.Long(nullable: false, identity: true),
+                        ImgBlob = c.Binary(),
+                        Hash = c.String(),
+                        MimeType = c.String(),
+                    })
+                .PrimaryKey(t => t.Id);
             
         }
         
