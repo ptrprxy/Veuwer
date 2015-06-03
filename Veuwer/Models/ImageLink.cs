@@ -9,6 +9,5 @@ namespace Veuwer.Models
     {
         public long Id { get; set; }
         public virtual Image Image { get; set; }
-        public string VoatLink { get; set; }
     }
 }

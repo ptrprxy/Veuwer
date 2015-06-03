@@ -1,5 +1,5 @@
 ﻿var toupload;
-var forward = '';
+var forward;
 var uploadfail = false;
 
 $(function () {
@@ -9,12 +9,13 @@ $(function () {
         for (var i = 0; i < this.files.length; i++) {
             toupload.push(this.files[i]);
         }
-        console.log(toupload);
+
         refreshFileList();
         $('#filestreams').replaceWith($('#filestreams').val('').clone(true));
     });
 
     $('#fileupload').click(function () {
+        forward = '/i/';
         $('#uploaderror,.removeitem').css({ display: 'none' });
         $('.progress').css({ display: 'block' });
         $('#filestreams,#filestreams-label,#urlinput').attr("disabled", true);
@@ -26,8 +27,6 @@ $(function () {
         for (var i = 0; i < toupload.length; i++) {
             var formdata = new FormData();
             formdata.append('image', toupload[i]);
-            console.log(toupload[i]);
-            console.log(formdata);
 
             var index = i;
             ajaxlist.push($.ajax({
@@ -46,7 +45,7 @@ $(function () {
 
         $.when.apply($, ajaxlist).then(function () {
             if (!uploadfail) {
-                window.location.href = forward.substring(1);
+                window.location.href = forward.substring(0, forward.length - 1);
             }
         });
     });
@@ -82,7 +81,7 @@ function createSuccess(i) {
     return function (e) {
         if (e.status == 'success') {
             $($('.progress .progress-bar')[i]).addClass('progress-bar-success');
-            forward += ',' + e.message;
+            forward += e.message + ',';
         } else {
             $($('.progress .progress-bar')[i]).addClass('progress-bar-danger');
             $('#uploaderror').css({ display: 'block' });
