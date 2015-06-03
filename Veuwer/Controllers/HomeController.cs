@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.Mvc;
 using Veuwer.Models;
 using MoreLinq;
+using Veuwer.Utility;
 
 namespace Veuwer.Controllers
 {
@@ -44,6 +45,9 @@ namespace Veuwer.Controllers
             if (image is HttpPostedFileBase[])
             {
                 var file = ((HttpPostedFileBase[])image)[0];
+                if (file.ContentLength > 2097152)
+                    return Fail(filename + " is too large");
+
                 filename = file.FileName;
                 stream = file.InputStream;
             }
@@ -56,12 +60,20 @@ namespace Veuwer.Controllers
                     filename = url;
 
                 using (WebClient client = new WebClient())
+                {
                     stream = client.OpenRead(url);
+
+                    int filesize = int.Parse(client.ResponseHeaders["Content-Length"]);
+                    if (filesize > 2097152)
+                        return Fail(filename + " is too large");
+                    else
+                        stream = new LengthStream(stream, filesize);
+                }
             }
 
             var newLink = CreateImageLink(stream);
             if (newLink == null)
-                return Fail(filename + " is too large or uses an invalid format");
+                return Fail(filename + " does not use a valid format");
 
             db.ImageLinks.Add(newLink);
 
@@ -82,56 +94,14 @@ namespace Veuwer.Controllers
                 }
                 catch (Exception)
                 {
-                    Fail("Transferring " + filename + " to storage failed");
+                    db.ImageLinks.Remove(newLink);
+                    db.Images.Remove(newLink.Image);
+                    db.SaveChanges();
+                    return Fail("Transferring " + filename + " to storage failed");
                 }
             }
 
             return Json(new { status = "success", message = Encode(newLink.Id) }, JsonRequestBehavior.AllowGet);
-        }
-
-        byte[] pngsig = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };  // .PNG....
-        byte[] jpgsig = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 };                          // ÿØÿà
-        byte[] gifsig1 = new byte[] { 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 };             // GIF87a
-        byte[] gifsig2 = new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 };             // GIF89a
-        ImageLink CreateImageLink(Stream stream)
-        {
-            byte[] imgdata;
-            using (var ms = new MemoryStream())
-            {
-                byte[] buffer = new byte[2048];
-                int bytesRead, totalRead = 0;
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, bytesRead);
-                    totalRead += bytesRead;
-                    if (totalRead > 2097152)
-                        return null;
-                }
-                imgdata = ms.ToArray();
-            }
-
-            var hash = BitConverter.ToString(sha.ComputeHash(imgdata)).Replace("-", String.Empty);
-            var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash);
-            if (imgMatch == null)
-            {
-                string mimeType = "";
-                if (imgdata.Take(pngsig.Length).SequenceEqual(pngsig))
-                    mimeType = "image/png";
-                else if (imgdata.Take(jpgsig.Length).SequenceEqual(jpgsig))
-                    mimeType = "image/jpeg";
-                else if (imgdata.Take(gifsig1.Length).SequenceEqual(gifsig1) || imgdata.Take(gifsig2.Length).SequenceEqual(gifsig2))
-                    mimeType = "image/gif";
-                else
-                    return null;
-
-                imgMatch = new Image()
-                {
-                    Hash = hash,
-                    MimeType = mimeType
-                };
-            }
-
-            return new ImageLink() { Image = imgMatch };
         }
 
         public ActionResult Images(string id)
@@ -167,6 +137,39 @@ namespace Veuwer.Controllers
             return File(imgdata, imgLink.Image.MimeType);
         }
 
+        static readonly byte[] pngsig = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };  // .PNG....
+        static readonly byte[] jpgsig = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 };                          // ÿØÿà
+        static readonly byte[] gifsig1 = new byte[] { 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 };             // GIF87a
+        static readonly byte[] gifsig2 = new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 };             // GIF89a
+        ImageLink CreateImageLink(Stream stream)
+        {
+            byte[] imghead = new byte[8];
+            stream.Read(imghead, 0, imghead.Length);
+
+            var hash = BitConverter.ToString(sha.ComputeHash(imghead)).Replace("-", String.Empty);
+            var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash);
+            if (imgMatch == null)
+            {
+                string mimeType = "";
+                if (imghead.Take(pngsig.Length).SequenceEqual(pngsig))
+                    mimeType = "image/png";
+                else if (imghead.Take(jpgsig.Length).SequenceEqual(jpgsig))
+                    mimeType = "image/jpeg";
+                else if (imghead.Take(gifsig1.Length).SequenceEqual(gifsig1) || imghead.Take(gifsig2.Length).SequenceEqual(gifsig2))
+                    mimeType = "image/gif";
+                else
+                    return null;
+
+                imgMatch = new Image()
+                {
+                    Hash = hash,
+                    MimeType = mimeType
+                };
+            }
+
+            return new ImageLink() { Image = imgMatch };
+        }
+
         byte[] StreamToByteArray(Stream stream, int sizeLimit = int.MaxValue)
         {
             byte[] data;
@@ -192,7 +195,7 @@ namespace Veuwer.Controllers
             return Json(new { status = "failure", message = reason }, JsonRequestBehavior.AllowGet);
         }
 
-        private const string CharList = "0123456789abcdefghijklmnopqrstuvwxyz";
+        const string CharList = "0123456789abcdefghijklmnopqrstuvwxyz";
         string Encode(long input)
         {
             char[] clistarr = CharList.ToCharArray();

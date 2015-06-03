@@ -180,6 +180,7 @@
     <Compile Include="Models\ImageLink.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Utility\LengthStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\aspnet-Veuw-20150523104302.mdf" />
