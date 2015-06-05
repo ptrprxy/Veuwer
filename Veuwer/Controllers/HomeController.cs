@@ -1,6 +1,7 @@
 ﻿using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,6 @@ using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
 using Veuwer.Models;
-using MoreLinq;
 
 namespace Veuwer.Controllers
 {
@@ -20,7 +20,7 @@ namespace Veuwer.Controllers
 
         IAmazonS3 s3;
         DefaultContext db = new DefaultContext();
-        SHA256Managed sha = new SHA256Managed();
+        MD5 md5 = MD5.Create();
         static Dictionary<long, byte[]> fileCache = new Dictionary<long, byte[]>();
         static Dictionary<long, DateTime> lastAccess = new Dictionary<long, DateTime>();
 
@@ -96,9 +96,6 @@ namespace Veuwer.Controllers
                 }
                 catch (Exception)
                 {
-                    db.ImageLinks.Remove(newLink);
-                    db.Images.Remove(newLink.Image);
-                    db.SaveChanges();
                     return Fail("Transferring " + filename + " to storage failed");
                 }
             }
@@ -148,7 +145,8 @@ namespace Veuwer.Controllers
             byte[] imghead = new byte[8];
             stream.Read(imghead, 0, imghead.Length);
 
-            var hash = BitConverter.ToString(sha.ComputeHash(imghead)).Replace("-", String.Empty);
+            stream.Seek(0, SeekOrigin.Begin);
+            var hash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
             var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash);
             if (imgMatch == null)
             {
