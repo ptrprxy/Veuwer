@@ -137,7 +137,7 @@ namespace Veuwer.Controllers
         }
 
         static readonly byte[] pngsig = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };  // .PNG....
-        static readonly byte[] jpgsig = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 };                          // ÿØÿà
+        static readonly byte[] jpgsig = new byte[] { 0xFF, 0xD8 };                                      // 0xFFD8
         static readonly byte[] gifsig1 = new byte[] { 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 };             // GIF87a
         static readonly byte[] gifsig2 = new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 };             // GIF89a
         ImageLink CreateImageLink(Stream stream)
