@@ -26,10 +26,17 @@ namespace Veuwer.Controllers
 
         int cacheLimit = 100;
 
-        public HomeController()
+        public IAmazonS3 S3
         {
-            string[] keys = System.IO.File.ReadAllText("/HostingSpaces/IcyDef/veuwer.com/data/awskeys.txt").Split(',');
-            s3 = AWSClientFactory.CreateAmazonS3Client(keys[0], keys[1], RegionEndpoint.USWest2);
+            get
+            {
+                if (s3 == null)
+                {
+                    string[] keys = System.IO.File.ReadAllText(Server.MapPath("~/App_Data/awskeys.txt")).Split(',');
+                    s3 = AWSClientFactory.CreateAmazonS3Client(keys[0], keys[1], RegionEndpoint.USWest2);
+                }
+                return s3;
+            }
         }
 
         public ActionResult Index()
@@ -86,7 +93,7 @@ namespace Veuwer.Controllers
                 try
                 {
                     string key = Request.Url.Host + "/images/" + Encode(newLink.Image.Id) + ".png";
-                    s3.PutObject(new PutObjectRequest()
+                    S3.PutObject(new PutObjectRequest()
                     {
                         Key = key,
                         InputStream = stream,
@@ -120,7 +127,7 @@ namespace Veuwer.Controllers
             byte[] imgdata;
             if (!fileCache.TryGetValue(imgId, out imgdata))
             {
-                using (var res = s3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgId) + ".png"))
+                using (var res = S3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgId) + ".png"))
                 using (Stream stream = res.ResponseStream)
                     fileCache[imgId] = imgdata = StreamToByteArray(stream);
 
