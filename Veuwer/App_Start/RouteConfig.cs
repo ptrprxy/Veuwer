@@ -21,8 +21,26 @@ namespace Veuwer
             );
 
             routes.MapRoute(
-                name: "ImageDirect",
+                name: "ImagePng",
                 url: "{id}.png",
+                defaults: new { controller = "Home", action = "ImageDirect" }
+            );
+
+            routes.MapRoute(
+                name: "ImageJpg",
+                url: "{id}.jpg",
+                defaults: new { controller = "Home", action = "ImageDirect" }
+            );
+
+            routes.MapRoute(
+                name: "ImageJpeg",
+                url: "{id}.jpeg",
+                defaults: new { controller = "Home", action = "ImageDirect" }
+            );
+
+            routes.MapRoute(
+                name: "ImageGif",
+                url: "{id}.gif",
                 defaults: new { controller = "Home", action = "ImageDirect" }
             );
 
