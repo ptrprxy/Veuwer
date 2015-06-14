@@ -12,5 +12,6 @@ namespace Veuwer.Models
 
         public DbSet<ImageLink> ImageLinks { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<PageView> PageViews { get; set; }
     }
 }
