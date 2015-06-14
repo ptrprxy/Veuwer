@@ -175,10 +175,15 @@
     <Compile Include="Migrations\201506031905028_RemoveBlob.Designer.cs">
       <DependentUpon>201506031905028_RemoveBlob.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201506140216369_PageViews.cs" />
+    <Compile Include="Migrations\201506140216369_PageViews.Designer.cs">
+      <DependentUpon>201506140216369_PageViews.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DefaultContext.cs" />
     <Compile Include="Models\Image.cs" />
     <Compile Include="Models\ImageLink.cs" />
+    <Compile Include="Models\PageView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -192,9 +197,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <None Include="Properties\PublishProfiles\arvixe.pubxml" />
-    <None Include="Properties\PublishProfiles\arvixe.test.pubxml" />
-    <None Include="Properties\PublishProfiles\veuwer - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\testveuwer - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\veuwer - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -241,6 +244,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201506031905028_RemoveBlob.resx">
       <DependentUpon>201506031905028_RemoveBlob.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201506140216369_PageViews.resx">
+      <DependentUpon>201506140216369_PageViews.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

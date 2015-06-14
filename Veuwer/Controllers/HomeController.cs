@@ -41,12 +41,18 @@ namespace Veuwer.Controllers
 
         public ActionResult Index()
         {
+            db.PageViews.Add(PageView.FromRequest(Request));
+            db.SaveChanges();
+
             return View();
         }
 
         [HttpPost]
         public ActionResult Upload(object image)
         {
+            db.PageViews.Add(PageView.FromRequest(Request));
+            db.SaveChanges();
+
             string filename = "";
             Stream stream = null;
 
@@ -112,12 +118,18 @@ namespace Veuwer.Controllers
 
         public ActionResult Images(string id)
         {
+            db.PageViews.Add(PageView.FromRequest(Request));
+            db.SaveChanges();
+
             var ids = id.Split(',');
             return View(ids);
         }
 
         public ActionResult ImageDirect(string id)
         {
+            db.PageViews.Add(PageView.FromRequest(Request));
+            db.SaveChanges();
+
             var imgLinkId = Decode(id);
             var imgLink = db.ImageLinks.FirstOrDefault(x => x.Id == imgLinkId);
             if (imgLink == null)
