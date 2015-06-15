@@ -16,12 +16,17 @@ namespace Veuwer.Models
 
         public static PageView FromRequest(HttpRequestBase request)
         {
-            return new PageView()
+            var ret = new PageView()
             {
                 IP = (request.ServerVariables["HTTP_X_FORWARDED_FOR"] ?? request.ServerVariables["REMOTE_ADDR"]).Split(',')[0].Trim(),
                 Timestamp = DateTime.Now,
                 Page = request.Path
             };
+
+            if (ret.IP.Contains('.'))
+                ret.IP = ret.IP.Split(':')[0];
+
+            return ret;
         }
     }
 }

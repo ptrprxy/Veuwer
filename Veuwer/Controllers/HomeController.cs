@@ -16,7 +16,7 @@ namespace Veuwer.Controllers
 {
     public class HomeController : Controller
     {
-        const int sizeLimit = 2097152;
+        const int sizeLimit = 10485760;
 
         IAmazonS3 s3;
         DefaultContext db = new DefaultContext();
