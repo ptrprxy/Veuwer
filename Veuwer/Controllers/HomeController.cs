@@ -82,7 +82,7 @@ namespace Veuwer.Controllers
                     if (filesize > sizeLimit)
                         return Fail(filename + " is too large");
                     else
-                        stream = new BufferedStream(stream);
+                        stream = new MemoryStream(StreamToByteArray(stream));
                 }
             }
 
