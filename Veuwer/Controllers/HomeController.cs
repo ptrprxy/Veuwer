@@ -10,6 +10,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI;
 using Veuwer.Models;
 
 namespace Veuwer.Controllers
@@ -21,8 +22,6 @@ namespace Veuwer.Controllers
         IAmazonS3 s3;
         DefaultContext db = new DefaultContext();
         MD5 md5 = MD5.Create();
-        static Dictionary<long, byte[]> fileCache = new Dictionary<long, byte[]>();
-        static Dictionary<long, DateTime> lastAccess = new Dictionary<long, DateTime>();
 
         int cacheLimit = 100;
 
@@ -125,6 +124,10 @@ namespace Veuwer.Controllers
             return View(ids);
         }
 
+        [OutputCache(
+            Duration = 3600,
+            VaryByParam = "id",
+            Location = OutputCacheLocation.ServerAndClient)]
         public ActionResult ImageDirect(string id)
         {
             db.PageViews.Add(PageView.FromRequest(Request));
@@ -135,24 +138,9 @@ namespace Veuwer.Controllers
             if (imgLink == null)
                 return HttpNotFound();
 
-            long imgId = imgLink.Image.Id;
-            byte[] imgdata;
-            if (!fileCache.TryGetValue(imgId, out imgdata))
-            {
-                using (var res = S3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgId) + ".png"))
-                using (Stream stream = res.ResponseStream)
-                    fileCache[imgId] = imgdata = StreamToByteArray(stream);
-
-                if (fileCache.Count > cacheLimit)
-                {
-                    var oldkey = lastAccess.MinBy(x => x.Value).Key;
-                    fileCache.Remove(oldkey);
-                    lastAccess.Remove(oldkey);
-                }
-            }
-
-            lastAccess[imgId] = DateTime.Now;
-            return File(imgdata, imgLink.Image.MimeType);
+            using (var res = S3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgLink.Image.Id) + ".png"))
+            using (Stream stream = res.ResponseStream)
+                return File(StreamToByteArray(stream), imgLink.Image.MimeType);
         }
 
         static readonly byte[] pngsig = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };  // .PNG....
