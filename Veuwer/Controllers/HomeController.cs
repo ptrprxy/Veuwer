@@ -23,35 +23,22 @@ namespace Veuwer.Controllers
         DefaultContext db = new DefaultContext();
         MD5 md5 = MD5.Create();
 
-        int cacheLimit = 100;
-
-        public IAmazonS3 S3
+        protected override IAsyncResult BeginExecuteCore(AsyncCallback callback, object state)
         {
-            get
-            {
-                if (s3 == null)
-                {
-                    string[] keys = System.IO.File.ReadAllText(Server.MapPath("~/App_Data/awskeys.txt")).Split(',');
-                    s3 = AWSClientFactory.CreateAmazonS3Client(keys[0], keys[1], RegionEndpoint.USWest2);
-                }
-                return s3;
-            }
+            string[] keys = System.IO.File.ReadAllText(Server.MapPath("~/App_Data/awskeys.txt")).Split(',');
+            s3 = AWSClientFactory.CreateAmazonS3Client(keys[0], keys[1], RegionEndpoint.USWest2);
+
+            return base.BeginExecuteCore(callback, state);
         }
 
         public ActionResult Index()
         {
-            db.PageViews.Add(PageView.FromRequest(Request));
-            db.SaveChanges();
-
             return View();
         }
 
         [HttpPost]
         public ActionResult Upload(object image)
         {
-            db.PageViews.Add(PageView.FromRequest(Request));
-            db.SaveChanges();
-
             string filename = "";
             Stream stream = null;
 
@@ -98,7 +85,7 @@ namespace Veuwer.Controllers
                 try
                 {
                     string key = Request.Url.Host + "/images/" + Encode(newLink.Image.Id) + ".png";
-                    S3.PutObject(new PutObjectRequest()
+                    s3.PutObject(new PutObjectRequest()
                     {
                         Key = key,
                         InputStream = stream,
@@ -117,9 +104,6 @@ namespace Veuwer.Controllers
 
         public ActionResult Images(string id)
         {
-            db.PageViews.Add(PageView.FromRequest(Request));
-            db.SaveChanges();
-
             var ids = id.Split(',');
             return View(ids);
         }
@@ -130,15 +114,12 @@ namespace Veuwer.Controllers
             Location = OutputCacheLocation.ServerAndClient)]
         public ActionResult ImageDirect(string id)
         {
-            db.PageViews.Add(PageView.FromRequest(Request));
-            db.SaveChanges();
-
             var imgLinkId = Decode(id);
             var imgLink = db.ImageLinks.FirstOrDefault(x => x.Id == imgLinkId);
             if (imgLink == null)
                 return HttpNotFound();
 
-            using (var res = S3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgLink.Image.Id) + ".png"))
+            using (var res = s3.GetObject("veuwer", Request.Url.Host + "/images/" + Encode(imgLink.Image.Id) + ".png"))
             using (Stream stream = res.ResponseStream)
                 return File(StreamToByteArray(stream), imgLink.Image.MimeType);
         }
