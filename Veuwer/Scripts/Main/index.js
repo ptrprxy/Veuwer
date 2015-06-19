@@ -58,6 +58,56 @@ $(function () {
             refreshFileList();
         }, 100);
     });
+
+    var dragging = false;
+    var dropzone = $('#dropzone');
+    dropzone.on('dragover', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        dropzone.css({ border: '1px solid green' });
+    });
+
+    dropzone.on('drop', function (e) {
+        if (e.originalEvent.dataTransfer) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var files = e.originalEvent.dataTransfer.files;
+            var items = e.originalEvent.dataTransfer.items;
+
+            if (files.length) {
+                for (var i = 0; i < files.length; i++) {
+                    toupload.push(files[i]);
+                }
+                refreshFileList();
+            } else if (items.length) {
+                items[0].getAsString(function (x) {
+                    toupload.push(x);
+                    refreshFileList();
+                });
+            }
+        }
+
+        dropzone.css({ border: '1px dashed #454545' });
+    });
+
+    dropzone.on('dragleave', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        dropzone.css({ border: '1px dashed #454545' });
+    });
+
+    $('html').on('dragover', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    $('html').on('drop', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
 });
 
 function createProg(i) {

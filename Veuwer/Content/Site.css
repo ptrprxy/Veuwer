@@ -50,3 +50,14 @@ input[type="file"] {
 #uploaderror {
     display: none;
 }
+
+#dropzone {
+    margin: 5px 0px;
+    padding: 6px 9px;
+    font-size: 13px;
+    line-height: 3;
+    border-radius: 3px;
+    background-color: #303030;
+    border: 1px dashed #454545;
+    text-align: center;
+}
