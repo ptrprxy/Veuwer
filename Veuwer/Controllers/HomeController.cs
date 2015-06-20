@@ -12,6 +12,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.UI;
 using Veuwer.Models;
+using Veuwer.Utility;
 
 namespace Veuwer.Controllers
 {
@@ -40,17 +41,16 @@ namespace Veuwer.Controllers
         public ActionResult Upload(object image)
         {
             string filename = "";
-            Stream stream = null;
+            MemoryStream stream = null;
 
             if (image is HttpPostedFileBase[])
             {
                 var file = ((HttpPostedFileBase[])image)[0];
-
-                filename = file.FileName;
-                stream = file.InputStream;
-
                 if (file.ContentLength > sizeLimit)
                     return Fail(filename + " is too large");
+
+                filename = file.FileName;
+                stream = ImageManager.ProcessImage(file.InputStream);
             }
             else if (image is string[])
             {
@@ -61,14 +61,13 @@ namespace Veuwer.Controllers
                     filename = url;
 
                 using (WebClient client = new WebClient())
+                using (var webstream = client.OpenRead(url))
                 {
-                    stream = client.OpenRead(url);
-
                     int filesize = int.Parse(client.ResponseHeaders["Content-Length"]);
                     if (filesize > sizeLimit)
                         return Fail(filename + " is too large");
-                    else
-                        stream = new MemoryStream(StreamToByteArray(stream));
+
+                    stream = ImageManager.ProcessImage(webstream);
                 }
             }
 
@@ -99,6 +98,7 @@ namespace Veuwer.Controllers
                 }
             }
 
+            stream.Dispose();
             return Json(new { status = "success", message = Encode(newLink.Id) }, JsonRequestBehavior.AllowGet);
         }
 
@@ -133,7 +133,7 @@ namespace Veuwer.Controllers
             byte[] imghead = new byte[8];
             stream.Read(imghead, 0, imghead.Length);
 
-            stream.Seek(0, SeekOrigin.Begin);
+            stream.Position = 0;
             var hash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
             var imgMatch = db.Images.FirstOrDefault(x => x.Hash == hash);
             if (imgMatch == null)
