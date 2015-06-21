@@ -6,7 +6,9 @@ namespace Veuwer.Utility
     {
         public static MemoryStream ProcessImage(Stream inStream)
         {
-            var outStream = new MemoryStream((int)inStream.Length);
+            var outStream = inStream.CanSeek ?
+                new MemoryStream((int)inStream.Length) :
+                new MemoryStream();
 
             byte[] header = new byte[2];
             header[0] = (byte)inStream.ReadByte();

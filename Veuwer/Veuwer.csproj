@@ -186,7 +186,7 @@
     <Compile Include="Models\PageView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="Utility\JpegPatcher.cs" />
+    <Compile Include="Utility\ImageManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\awskeys.txt" />
